@@ -3,7 +3,7 @@ modules:
     - tcl
   tcl:
     projections:
-      all: '{compiler.name}-{compiler.version}/{name}/{version}'
+      all: '{compiler.name}-{compiler.version}/{name}/{version}/{hash:4}'
     hash_length: 0
     all:
       conflict:
@@ -11,5 +11,4 @@ modules:
       environment:
         set:
           '{name}_ROOT_DIR': '{prefix}'
-    include: ['gcc']
-    exclude: ['%gcc']
+    exclude: ['cuda', 'gcc', 'go', 'llvm', 'intel-parallel-studio', 'binutils', 'pgi']

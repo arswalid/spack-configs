@@ -6,15 +6,16 @@ spack:
   - cmake
   - cppcheck
   - curl
-  - flex@2.6.3
+  - flex
+  - flex@2.5.39
   - ffmpeg
   - emacs
   - git
   - gdb
-  - gnuplot+wx 
+  - gnuplot+wx  ~cuda cuda_arch=none
   - gnutls
   - htop
-  - imagemagick 
+  - imagemagick ~cuda cuda_arch=none
   - libxml2
   - likwid
   - ninja
@@ -22,21 +23,19 @@ spack:
   - makedepend
   - patch
   - pkg-config
-  - python@3.9.13
+  - python
   - python@2.7.18
   - rsync
   - screen
   - stow
   - strace
   - texinfo
-  - texlive 
+  - texlive  ~cuda cuda_arch=none
   - tmux
   - unzip
   - vim
   - wget
   - zsh
-  - ucx
-  - slurm
   #- global
   #- xterm
   view: false
