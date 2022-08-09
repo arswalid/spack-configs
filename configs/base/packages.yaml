@@ -9,6 +9,11 @@ packages:
     variants: +fma
   gcc:
     variants: languages=c,c++,fortran,go
+  git:
+    buildable: false
+    externals:
+    - spec: slurm@1.8.3
+      prefix: /usr/bin/git
   hdf5:
     version: [1.10.7]
     variants: +cxx+hl

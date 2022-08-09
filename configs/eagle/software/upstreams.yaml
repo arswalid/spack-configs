@@ -1,5 +1,5 @@
 upstreams:
   spack-utilities:
-    install_tree: /nopt/nrel/ecom/hpacf/utilities/2020-07/spack/opt/spack
-  spack-compilers:
-    install_tree: /nopt/nrel/ecom/hpacf/compilers/2020-07/spack/opt/spack
+    install_tree: /nopt/nrel/apps/base/warsalan/csso/utilities/2022-07/spack/opt/spack
+  spack-compilers:/nopt/nrel/apps/base/warsalan/csso
+    install_tree: /nopt/nrel/apps/base/warsalan/csso/compilers/2022-07/spack/opt/spack

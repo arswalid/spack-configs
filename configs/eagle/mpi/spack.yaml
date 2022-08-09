@@ -1,0 +1,24 @@
+spack:
+  specs:
+  - openmpi%gcc  
+  - openmpi%clang
+  - openmpi%oneapi
+  - mpich%gcc
+  - mpich%clang
+  - mpich%oneapi
+  - intel-oneapi-mpi%gcc
+  - intel-oneapi-mpi%clang
+  - intel-oneapi-mpi%oneapi
+  - mpt%gcc
+  - mpt%clang
+  - mpt%oneapi
+  - py-mpi4py%gcc ^openmpi
+  - py-mpi4py%gcc ^mpich
+  - py-mpi4py%gcc ^intel-oneapi-mpi
+  - py-mpi4py%clang ^openmpi
+  - py-mpi4py%clang ^mpich
+  - py-mpi4py%clang ^intel-oneapi-mpi
+  - py-mpi4py%oneapi ^openmpi
+  - py-mpi4py%oneapi ^mpich
+  - py-mpi4py%oneapi ^intel-oneapi-mpi
+  view: false
