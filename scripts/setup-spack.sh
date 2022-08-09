@@ -34,6 +34,11 @@ elif [ ${OS} == 'Linux' ]; then
       MACHINE=eagle
     ;;
   esac
+  case "${NREL_CLUSTER}" in
+    vermilion)
+      MACHINE=vermilion
+    ;;
+  esac
   MYHOSTNAME=$(hostname -s)
   case "${MYHOSTNAME}" in
     rhodes)
@@ -44,6 +49,7 @@ fi
 
 # Copy machine-specific configuration for Spack if we recognize the machine
 if [ "${MACHINE}" == 'eagle' ] || \
+   [ "${MACHINE}" == 'vermilion' ] || \
    [ "${MACHINE}" == 'rhodes' ] || \
    [ "${MACHINE}" == 'mac' ]; then
 
@@ -51,6 +57,8 @@ if [ "${MACHINE}" == 'eagle' ] || \
 
   #Extra stuff for eagle
   if [ ${MACHINE} == 'eagle' ] || [ ${MACHINE} == 'rhodes' ]; then
+    OS=linux
+  elif [ "${MACHINE}" == 'vermilion' ]; then
     OS=linux
   elif [ "${MACHINE}" == 'mac' ]; then
     OS=darwin

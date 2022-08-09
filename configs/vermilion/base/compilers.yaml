@@ -1,0 +1,13 @@
+compilers:
+- compiler:
+    environment: {}
+    extra_rpaths: []
+    modules: []
+    operating_system: rocky8
+    paths:
+      cc: /opt/ohpc/pub/compiler/gcc/9.4.0/bin/gcc
+      cxx: /opt/ohpc/pub/compiler/gcc/9.4.0/bin/g++
+      f77: 
+      fc: 
+    spec: gcc@9.4.0
+    target: x86_64

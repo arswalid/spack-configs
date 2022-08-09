@@ -1,0 +1,14 @@
+compilers:
+- compiler:
+    environment: {}
+    extra_rpaths:
+     - /nopt/nrel/apps/base/warsalan/base/2022-08/spack/opt/spack/linux-rocky8-zen2/gcc-9.4.0/gcc-12.1.0-y4a6uymnqwwwyvdnmmtzvwxppzoai753/lib64
+    modules: []
+    operating_system: rocky8
+    paths:
+      cc: /nopt/nrel/apps/base/warsalan/base/2022-08/spack/opt/spack/linux-rocky8-zen2/gcc-9.4.0/gcc-12.1.0-y4a6uymnqwwwyvdnmmtzvwxppzoai753/bin/gcc
+      cxx:/nopt/nrel/apps/base/warsalan/base/2022-08/spack/opt/spack/linux-rocky8-zen2/gcc-9.4.0/gcc-12.1.0-y4a6uymnqwwwyvdnmmtzvwxppzoai753/bin/g++
+      f77:/nopt/nrel/apps/base/warsalan/base/2022-08/spack/opt/spack/linux-rocky8-zen2/gcc-9.4.0/gcc-12.1.0-y4a6uymnqwwwyvdnmmtzvwxppzoai753/bin/gfortran
+      fc: /nopt/nrel/apps/base/warsalan/base/2022-08/spack/opt/spack/linux-rocky8-zen2/gcc-9.4.0/gcc-12.1.0-y4a6uymnqwwwyvdnmmtzvwxppzoai753/bin/gfortran
+    spec: gcc@12.1.0
+    target: x86_64

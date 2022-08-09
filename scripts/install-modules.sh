@@ -11,12 +11,13 @@
 #SBATCH -p short
 #SBATCH -A hpcapps
 
-#TYPE=base
+TYPE=base
 #TYPE=compilers
 #TYPE=utilities
-TYPE=software
+#TYPE=mpi
+#TYPE=software
 
-DATE=2020-07
+DATE=2022-08
 
 set -e
 
@@ -38,6 +39,11 @@ case "${NREL_CLUSTER}" in
     MACHINE=eagle
   ;;
 esac
+case "${NREL_CLUSTER}" in
+  vermilion)
+    MACHINE=vermilion
+  ;;
+esac
 MYHOSTNAME=$(hostname -s)
 case "${MYHOSTNAME}" in
   rhodes)
@@ -47,6 +53,8 @@ esac
 
 if [ "${MACHINE}" == 'eagle' ]; then
   BASE_DIR=/nopt/nrel/ecom/hpacf
+elif [ "${MACHINE}" == 'vermilion' ]; then
+  BASE_DIR=/nopt/nrel/apps/base/warsalan
 elif [ "${MACHINE}" == 'rhodes' ]; then
   BASE_DIR=/opt
 else
@@ -54,34 +62,46 @@ else
   exit 1
 fi
 
+# Defining path to folder of interest 
 INSTALL_DIR=${BASE_DIR}/${TYPE}/${DATE}
+THIS_REPO_DIR=$(pwd)
+License_PATH=${HOME}/save/license.lic
 
+# Set spack location
+export SPACK_ROOT=${INSTALL_DIR}/spack
+
+# Set Compilers versions 
 if [ "${TYPE}" == 'base' ]; then
-  GCC_COMPILER_VERSION=4.8.5
   if [ "${MACHINE}" == 'eagle' ]; then
+    GCC_COMPILER_VERSION=4.8.5
     CPU_OPT=haswell
+  elif [ "${MACHINE}" == 'vermilion' ]; then
+    GCC_COMPILER_VERSION=9.4.0
+    CPU_OPT=linux-rocky8-zen2
   elif [ "${MACHINE}" == 'rhodes' ]; then
+    GCC_COMPILER_VERSION=4.8.5
     CPU_OPT=haswell
   fi
-elif [ "${TYPE}" == 'compilers' ] || [ "${TYPE}" == 'utilities' ] || [ "${TYPE}" == 'software' ]; then
-  GCC_COMPILER_VERSION=8.4.0
+elif [ "${TYPE}" != 'base' ]; then
   if [ "${MACHINE}" == 'eagle' ]; then
-    CPU_OPT=skylake_avx512
+  GCC_COMPILER_VERSION=10.1.0
+    CPU_OPT=linux-centos7-skylake_avx512
+  elif [ "${MACHINE}" == 'vermilion' ]; then
+  GCC_COMPILER_VERSION=12.1.0
+    CPU_OPT=linux-rocky8-zen2
   elif [ "${MACHINE}" == 'rhodes' ]; then
     CPU_OPT=broadwell
   fi
 fi
 GCC_COMPILER_MODULE=gcc/${GCC_COMPILER_VERSION}
-INTEL_COMPILER_VERSION=18.0.4
-INTEL_COMPILER_MODULE=intel-parallel-studio/cluster.2018.4
-CLANG_COMPILER_VERSION=10.0.0
+INTEL_COMPILER_VERSION=2022.1.0
+INTEL_COMPILER_MODULE=intel-oneapi-compilers/cluster.2018.4
+CLANG_COMPILER_VERSION=14.0.6
 CLANG_COMPILER_MODULE=llvm/${CLANG_COMPILER_VERSION}
 
-THIS_REPO_DIR=$(pwd)/..
 
-# Set spack location
-export SPACK_ROOT=${INSTALL_DIR}/spack
-
+cmd "ml gnu9/9.4.0"
+# Clone and setup spack
 if [ ! -d "${INSTALL_DIR}" ]; then
   printf "============================================================\n"
   printf "Install directory doesn't exist.\n"
@@ -92,18 +112,12 @@ if [ ! -d "${INSTALL_DIR}" ]; then
   cmd "mkdir -p ${INSTALL_DIR}"
 
   printf "\nCloning Spack repo...\n"
-  cmd "git clone https://github.com/spack/spack.git ${SPACK_ROOT}"
+  cmd "git clone -c feature.manyFiles=true https://github.com/arswalid/spack.git ${SPACK_ROOT}"
 
   printf "\nConfiguring Spack...\n"
   cmd "cd ${THIS_REPO_DIR}/scripts && ./setup-spack.sh"
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/compilers.yaml ${SPACK_ROOT}/etc/spack/"
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/modules.yaml ${SPACK_ROOT}/etc/spack/"
-  cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/upstreams.yaml ${SPACK_ROOT}/etc/spack/ || true"
-  if [ "${TYPE}" == 'compilers' ]; then
-    cmd "rm ${SPACK_ROOT}/etc/spack/upstreams.yaml || true"
-  fi
-  cmd "mkdir -p ${SPACK_ROOT}/etc/spack/licenses/intel"
-  cmd "cp ${HOME}/save/license.lic ${SPACK_ROOT}/etc/spack/licenses/intel/"
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
   cmd "spack env create ${TYPE}"
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/spack.yaml ${SPACK_ROOT}/var/spack/environments/${TYPE}/spack.yaml"
@@ -113,63 +127,55 @@ if [ ! -d "${INSTALL_DIR}" ]; then
   printf "============================================================\n"
 else
   printf "\nLoading Spack...\n"
+  cmd "export SPACK_DISABLE_LOCAL_CONFIG=true"
+  cmd "export SPACK_USER_CACHE_PATH=${THIS_REPO_DIR}/.cache"
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 fi
 
-printf "\nLoading modules...\n"
-cmd "module purge"
-cmd "module unuse ${MODULEPATH}"
-if [ "${TYPE}" != 'software' ]; then
-  cmd "module use ${BASE_DIR}/compilers/modules"
-  cmd "module use ${BASE_DIR}/utilities/modules"
-elif [ "${TYPE}" == 'software' ]; then
+
+if [ "${TYPE}" == 'software' ]; then
+  printf "\nLoading modules...\n"
   cmd "module use ${BASE_DIR}/compilers/modules-${DATE}"
   cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
-fi
-cmd "module load bison bzip2 binutils curl git python texinfo unzip wget"
-# Can't always load flex or texlive or some things fail
-if [ "${TYPE}" == 'utilities' ]; then
-  cmd "module load flex texlive"
-elif [ "${TYPE}" == 'software' ]; then
-  cmd "module load gcc"
+  cmd "module load bison bzip2 binutils curl git python texinfo unzip wget"
 fi
 
-cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
+
+#cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 cmd "spack compilers"
 cmd "spack arch"
 
-if [ "${MACHINE}" == 'eagle' ]; then
+if [[ "${MACHINE}" == 'eagle' ||  "${MACHINE}" == 'vermilion' ]]; then
   printf "\nMaking and setting TMPDIR to disk...\n"
   cmd "mkdir -p /scratch/${USER}/.tmp"
   cmd "export TMPDIR=/scratch/${USER}/.tmp"
 fi
 
 printf "\nInstalling ${TYPE}...\n"
-
+cmd "spack bootstrap root /scratch/${USER}/.spack" 
 cmd "spack env activate ${TYPE}"
-cmd "spack concretize -f"
-#for i in {1..4}; do
-cmd "spack install -j 64"
+#cmd "spack concretize -f"
+#cmd "nice spack install"
 #done
 #wait
-
+#cmd "spack module tcl refresh --delete-tree -y"
 printf "\nDone installing ${TYPE} at $(date).\n"
 
 printf "\nCreating dated modules symlink...\n"
 if [ "${TYPE}" != 'software' ]; then
-  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/linux-centos7-${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE} && cd -"
+  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE} && cd -"
 fi
 
 printf "\nSetting permissions...\n"
-if [ "${MACHINE}" == 'eagle' ]; then
+if [[ "${MACHINE}" == 'eagle' ||  "${MACHINE}" == 'vermilion' ]]; then
   # Need to create a blank .version for name/version splitting for lmod
-  cd ${INSTALL_DIR}/${DATE}/share/spack/modules/linux-centos7-${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
+  cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
   if [ "${TYPE}" == 'software' ]; then
-    cd ${INSTALL_DIR}/${DATE}/share/spack/modules/linux-centos7-${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
-    cd ${INSTALL_DIR}/${DATE}/share/spack/modules/linux-centos7-${CPU_OPT}/clang-${CLANG_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
+    cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
+    cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/clang-${CLANG_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
   fi
   cmd "nice -n 19 ionice -c 3 chmod -R a+rX,go-w ${INSTALL_DIR}"
-  cmd "nice -n 19 ionice -c 3 chgrp -R n-ecom ${INSTALL_DIR}"
+  cmd "nice -n 19 ionice -c 3 chgrp -R n-apps ${INSTALL_DIR}"
 elif [ "${MACHINE}" == 'rhodes' ]; then
   cmd "nice -n 19 ionice -c 3 chgrp windsim /opt"
   cmd "nice -n 19 ionice -c 3 chgrp windsim /opt/${TYPE}"
@@ -181,6 +187,7 @@ fi
 
 printf "\n$(date)\n"
 printf "\nDone!\n"
+
 
 # Some other info:
 # Edit software/compilers.yaml to point to all compilers this script installed in the compilers build phase
