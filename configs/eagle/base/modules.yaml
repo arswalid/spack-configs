@@ -1,15 +1,16 @@
 modules:
-  enable:
-    - tcl
-  tcl:
-    projections:
-      all: '{compiler.name}-{compiler.version}/{name}/{version}'
-    hash_length: 0
-    all:
-      conflict:
-        - '{name}'
-      environment:
-        set:
-          '{name}_ROOT_DIR': '{prefix}'
-    include: ['gcc']
-    exclude: ['%gcc']
+  default: 
+    enable:
+      - tcl
+    tcl:
+      projections:
+        all: '{compiler.name}-{compiler.version}/{name}:{version}'
+      hash_length: 0
+      all:
+        conflict:
+          - '{name}'
+        environment:
+          set:
+            '{name}_ROOT_DIR': '{prefix}'
+      include: ['gcc', 'git', 'python']
+      exclude: ['%gcc']

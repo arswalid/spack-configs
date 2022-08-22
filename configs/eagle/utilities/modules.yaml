@@ -1,14 +1,16 @@
 modules:
-  enable:
-    - tcl
-  tcl:
-    projections:
-      all: '{compiler.name}-{compiler.version}/{name}/{version}/{hash:4}'
-    hash_length: 0
-    all:
-      conflict:
-        - '{name}'
-      environment:
-        set:
-          '{name}_ROOT_DIR': '{prefix}'
-    exclude: ['cuda', 'gcc', 'go', 'llvm', 'intel-parallel-studio', 'binutils', 'pgi']
+  default:
+    enable:
+      - tcl
+    tcl:
+      projections:
+        all: '{compiler.name}-{compiler.version}/{name}/{version}'
+      hash_length: 0
+      all:
+        conflict:
+          - '{name}'
+        environment:
+          set:
+            '{name}_ROOT_DIR': '{prefix}'
+      include: ['anaconda3','bc','bison','bzip2','cmake', 'cppcheck', 'curl','flex@2.6.3',' ffmpeg',' emacs',' gdb',' gnutls',' htop',' imagemagick',' libxml2',' likwid',' ninja',' mercurial',' makedepend',' patch',' pkg-config',' python@3.9.13',' python@3.10.6',' screen',' stow',' strace',' texinfo',' tmux',' tar',' unzip',' vim',' zsh',' ucx',' slurm']
+      exclude: ['cuda', 'gcc', 'go', 'llvm', 'intel-parallel-studio', 'binutils', 'pgi']

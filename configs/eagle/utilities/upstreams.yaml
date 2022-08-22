@@ -1,3 +1,0 @@
-upstreams:
-  spack-base:
-    install_tree: /nopt/nrel/apps/base/warsalan/csso/base/07-22/spack/opt/spack

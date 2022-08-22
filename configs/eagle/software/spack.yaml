@@ -1,6 +1,9 @@
 spack:
   specs:
   - py-mpi4py ^openmpi
+  - petsc ^openmpi
+  - adios ^openmpi
+  - hdf5 ^openmpi 
   #- osu-micro-benchmarks
   #- py-numpy
   #- py-matplotlib

@@ -1,5 +1,3 @@
 upstreams:
-  spack-compilers:
-    install_tree: /nopt/nrel/apps/base/warsalan/csso_08_22/compilers/08-22/spack/opt/spack
   spack-utilities:
     install_tree: /nopt/nrel/apps/base/warsalan/csso_08_22/utilities/08-22/spack/opt/spack

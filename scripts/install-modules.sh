@@ -11,13 +11,13 @@
 #SBATCH -p standard
 #SBATCH -A hpcapps
 
-TYPE=base
-#TYPE=compilers
-#TYPE=mpi
+#TYPE=base
 #TYPE=utilities
+TYPE=compilers
+#TYPE=mpi
 #TYPE=software
 
-DATE=07-22
+DATE=08-22
 
 set -e
 
@@ -52,7 +52,7 @@ case "${MYHOSTNAME}" in
 esac
 
 if [ "${MACHINE}" == 'eagle' ]; then
-  BASE_DIR=/nopt/nrel/apps/base/warsalan/csso
+  BASE_DIR=/nopt/nrel/apps/base/warsalan/csso_08_22
 elif [ "${MACHINE}" == 'vermilion' ]; then
   BASE_DIR=/nopt/nrel/apps/base/warsalan
 elif [ "${MACHINE}" == 'rhodes' ]; then
@@ -74,7 +74,7 @@ export SPACK_ROOT=${INSTALL_DIR}/spack
 if [ "${TYPE}" == 'base' ]; then
   if [ "${MACHINE}" == 'eagle' ]; then
     GCC_COMPILER_VERSION=4.8.5
-    CPU_OPT=haswell
+    CPU_OPT=linux-centos7-haswell
   elif [ "${MACHINE}" == 'vermilion' ]; then
     GCC_COMPILER_VERSION=9.4.0
     CPU_OPT=linux-rocky8-zen2
@@ -82,9 +82,19 @@ if [ "${TYPE}" == 'base' ]; then
     GCC_COMPILER_VERSION=4.8.5
     CPU_OPT=haswell
   fi
-elif [ "${TYPE}" != 'base' ]; then
+elif [[ "${TYPE}" == 'utilities' || "${TYPE}" == 'compilers' ]]; then
   if [ "${MACHINE}" == 'eagle' ]; then
-  GCC_COMPILER_VERSION=10.1.0
+  GCC_COMPILER_VERSION=8.4.0
+    CPU_OPT=linux-centos7-skylake_avx512
+  elif [ "${MACHINE}" == 'vermilion' ]; then
+  GCC_COMPILER_VERSION=8.4.0
+    CPU_OPT=linux-rocky8-zen2
+  elif [ "${MACHINE}" == 'rhodes' ]; then
+    CPU_OPT=broadwell
+  fi
+elif [ "${TYPE}" == 'mpi' || "${TYPE}" == 'software' ]; then
+  if [ "${MACHINE}" == 'eagle' ]; then
+  GCC_COMPILER_VERSION=12.1.0
     CPU_OPT=linux-centos7-skylake_avx512
   elif [ "${MACHINE}" == 'vermilion' ]; then
   GCC_COMPILER_VERSION=12.1.0
@@ -95,10 +105,32 @@ elif [ "${TYPE}" != 'base' ]; then
 fi
 GCC_COMPILER_MODULE=gcc/${GCC_COMPILER_VERSION}
 INTEL_COMPILER_VERSION=2022.1.0
-INTEL_COMPILER_MODULE=intel-oneapi-compilers/cluster.2018.4
+INTEL_COMPILER_MODULE=intel-oneapi-compilers/${INTEL_COMPILER_VERSION}
 CLANG_COMPILER_VERSION=14.0.6
 CLANG_COMPILER_MODULE=llvm/${CLANG_COMPILER_VERSION}
 
+# Loading modules 
+printf "\nLoading modules...\n"
+cmd "module purge"
+cmd "module unuse ${MODULEPATH}"
+if [ "${TYPE}" == 'utilities' ]; then
+  cmd "module use ${BASE_DIR}/base/modules-${DATE}"
+  cmd "module load gcc git python"
+elif [ "${TYPE}" == 'compilers' ]; then
+  cmd "module use ${BASE_DIR}/base/modules-${DATE}"
+  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
+  cmd "module load gcc git python"
+elif ["${TYPE}" == 'mpi' ]; then
+  cmd "module use ${BASE_DIR}/base/modules-${DATE}"
+  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
+  cmd "module load gcc oneapi cuda nvhpc git python "
+elif [ "${TYPE}" == 'software' ]; then
+  cmd "module use ${BASE_DIR}/compilers/modules-${DATE}"
+  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
+  cmd "module use ${BASE_DIR}/mpi/modules-${DATE}"
+  cmd "module load gcc    git    python oneapi"
+  cmd "module load openmpi mpich mpt"
+fi
 
 # Clone and setup spack
 if [ ! -d "${INSTALL_DIR}" ]; then
@@ -109,26 +141,30 @@ if [ ! -d "${INSTALL_DIR}" ]; then
 
   printf "Creating top level install directory...\n"
   cmd "mkdir -p ${INSTALL_DIR}"
-  cmd "module purge"
-  cmd "module use /nopt/nrel/apps/base/warsalan/Tim_scripts/tools/boot/modules/lmod/linux-centos7-x86_64/Core"
-  cmd "ml git"
+  #cmd "module purge"
+  #cmd "module use /nopt/nrel/apps/base/warsalan/Tim_scripts/tools/boot/modules/lmod/linux-centos7-x86_64/Core"
+  #cmd "ml git"
   printf "\nCloning Spack repo...\n"
-  cmd "git clone -c feature.manyFiles=true https://github.com/arswalid/spack.git ${SPACK_ROOT}"
+  cmd "git clone -c feature.manyFiles=true https://github.com/spack/spack.git  ${SPACK_ROOT}"
 
   printf "\nConfiguring Spack...\n"
   cmd "cd ${THIS_REPO_DIR}/scripts && ./setup-spack.sh"
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/packages.yaml ${SPACK_ROOT}/etc/spack/"
+  if [ "${TYPE}" == 'base' ]; then
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/compilers.yaml ${SPACK_ROOT}/etc/spack/"
+  fi
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/modules.yaml ${SPACK_ROOT}/etc/spack/"
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/upstreams.yaml ${SPACK_ROOT}/etc/spack/ || true"
-  if [ "${TYPE}" == 'compilers' ]; then
+  if [[ "${TYPE}" == 'base' || "${TYPE}" == 'utilities' ]]; then
     cmd "rm ${SPACK_ROOT}/etc/spack/upstreams.yaml || true"
   fi
-  if [ "${TYPE}" == 'base' ]; then
-    cmd "rm -rf  /scratch/${USER}/.spack"
-  fi
+  #if [ "${TYPE}" == 'base' ]; then
+  #  cmd "rm -rf  /scratch/${USER}/.spack"
+  #fi
   cmd "mkdir -p ${SPACK_ROOT}/etc/spack/licenses/intel"
-  cmd "cp /home/${USER}/save/license.lic ${SPACK_ROOT}/etc/spack/licenses/intel/"
+  if [ -d "${License_PATH}" ]; then
+    cmd "cp ${Licence_PATH} ${SPACK_ROOT}/etc/spack/licenses/intel/"
+  fi
   cmd "export SPACK_DISABLE_LOCAL_CONFIG=true"
   cmd "export SPACK_USER_CACHE_PATH=${SPACK_ROOT}/.cache"
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
@@ -146,18 +182,8 @@ else
 fi
 
 
-#cmd "spack module tcl refresh" 
-if [ "${TYPE}" == 'software' ]; then
-  printf "\nLoading modules...\n"
-  cmd "module purge"
-  cmd "module unuse ${MODULEPATH}"
-  cmd "module use ${BASE_DIR}/compilers/modules-${DATE}"
-  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
-  cmd "module load bison bzip2 binutils curl git python texinfo unzip wget"
-  cmd "module load gcc"
-fi
 
-cmd "spack compilers"
+cmd "spack compiler find"
 cmd "spack arch"
 
 if [[ "${MACHINE}" == 'eagle' ||  "${MACHINE}" == 'vermilion' ]]; then
@@ -171,22 +197,33 @@ printf "\nInstalling ${TYPE}...\n"
 #cmd "spack config update"
 cmd "spack bootstrap root /scratch/${USER}/.spack"
 cmd "spack env activate ${TYPE}"
-cmd "spack concretize -f"
-cmd "nice spack install "
+cmd "spack concretize --fresh --force"
+printf "\nrunning spack install\n"
+cmd "spack  install "
+wait
+cmd "spack module tcl refresh --delete-tree -y"
 
 #cmd "spack module tcl refresh --delete-tree -y"
 printf "\nDone installing ${TYPE} at $(date).\n"
 
 printf "\nCreating dated modules symlink...\n"
+
 if [ "${TYPE}" != 'software' ]; then
-  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE} && cd -"
+  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules  && cd -"
+elif [ "${TYPE}" == 'software' ]; then
+  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE}/gcc-${GCC_COMPILER_VERSION} && cd -"
+  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} modules-${DATE}/intel-${GCC_COMPILER_VERSION} && cd -"
+  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/clang-${CLANG_COMPILER_VERSION} modules-${DATE}/clang-${GCC_COMPILER_VERSION} && cd -"
 fi
 
 printf "\nSetting permissions...\n"
+
 if [[ "${MACHINE}" == 'eagle' ||  "${MACHINE}" == 'vermilion' ]]; then
+  if [ "${TYPE}" != 'software' ]; then
   # Need to create a blank .version for name/version splitting for lmod
   cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
-  if [ "${TYPE}" == 'software' ]; then
+  elif [ "${TYPE}" == 'software' ]; then
+    cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
     cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
     cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/clang-${CLANG_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
   fi

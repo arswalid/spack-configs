@@ -73,11 +73,11 @@ if [ "${MACHINE}" == 'eagle' ] || \
   (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/config.yaml ${SPACK_ROOT}/etc/spack/${OS}/)
   (set -x; cp -R ${THIS_REPO_DIR}/custom ${SPACK_ROOT}/var/spack/repos/)
 
-  if [ "${MACHINE}" != 'mac' ]; then
-    (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/software/compilers.yaml ${SPACK_ROOT}/etc/spack/)
-    (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/software/modules.yaml ${SPACK_ROOT}/etc/spack/)
-    (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/user/upstreams.yaml ${SPACK_ROOT}/etc/spack/)
-  fi
+  #if [ "${MACHINE}" != 'mac' ]; then
+  #  (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/software/compilers.yaml ${SPACK_ROOT}/etc/spack/)
+  #  (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/software/modules.yaml ${SPACK_ROOT}/etc/spack/)
+  #  (set -x; cp ${THIS_REPO_DIR}/configs/${MACHINE}/user/upstreams.yaml ${SPACK_ROOT}/etc/spack/)
+  #fi
 
 else
   printf "\nMachine name not found.\n"

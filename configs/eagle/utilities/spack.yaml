@@ -1,5 +1,6 @@
 spack:
   specs:
+  - anaconda3
   - bc
   - bison
   - bzip2
@@ -9,12 +10,10 @@ spack:
   - flex@2.6.3
   - ffmpeg
   - emacs
-  - git
   - gdb
-  - gnuplot+wx 
   - gnutls
   - htop
-  - imagemagick 
+  - imagemagick
   - libxml2
   - likwid
   - ninja
@@ -23,20 +22,21 @@ spack:
   - patch
   - pkg-config
   - python@3.9.13
-  - python@2.7.18
-  - rsync
+  - python@3.10.6
   - screen
   - stow
   - strace
   - texinfo
-  - texlive 
   - tmux
+  - tar
   - unzip
   - vim
-  - wget
   - zsh
   - ucx
   - slurm
+  #- gnuplot+qt (error due to libtiff missing)
+  #- apptainer (problem with libseccomp may not be needed)
+  #- texlive (takes forever better use installation from source)
   #- global
   #- xterm
   view: false
