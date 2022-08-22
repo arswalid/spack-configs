@@ -11,4 +11,4 @@ modules:
       environment:
         set:
           '{name}_ROOT_DIR': '{prefix}'
-    exclude: ['cuda', 'gcc', 'go', 'llvm', 'intel-parallel-studio', 'binutils', 'pgi']
+    exclude: ['cuda', 'gcc', 'go', 'llvm', 'intel-parallel-studio', 'binutils', 'pgi', '%gcc', '%oneapi']

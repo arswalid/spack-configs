@@ -8,6 +8,6 @@ spack:
   - cuda
   - nvhpc@22.7
   - arm-forge@22.0.4
-  - aocc@3.2.0
+  - aocc@3.2.0+license-agreed
   #- pgi (needs manual download moved to nvhpc)   
   view: False

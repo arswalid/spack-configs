@@ -88,10 +88,12 @@ you can always specify the compiler of choice by using `%{compiler-name}%{compil
 and also specify the mpi of choice by using `^{mpi-name}@{mpi-version}`
 as an example, if we wanted to install petsc using openmpi/4.1.1 and gcc/12.1.0, spack.yaml will look ike this 
 
+```
 spack:
   specs:
   - petsc ^openmpi@4.1.1 %gcc@12.1.0  
   view: false
+```
 
 spack will automatically reuse any previously installed package from the previous layers.
 
@@ -105,13 +107,14 @@ as an example, for hpcapps members, a good installtion path would be:
 /nopt/nrel/apps/base/${USER}/${TYPE}/{DATE}
 
 once the two files are modified we can execute the following command to install the packages 
-./scripts/intall-modules.sh
+`./scripts/intall-modules.sh`
+
 this will: 
-create the installation directory
-clone spack
-copy all necessary files 
-load necessary modules 
-install packages 
-create module files for all packages 
-set permissions 
+- create the installation directory
+- clone spack
+- copy all necessary files 
+- load necessary modules 
+- install packages 
+- create module files for all packages 
+- set permissions 
 
