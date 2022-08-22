@@ -2,8 +2,9 @@ This file describes the procedure to intall a software/application using spack t
 This repo uses levels in spack to separate each type of application.
 
 the levels are:
+
 1- base: this layer is used to isolate the system compiler. 
-we use gcc/8.4.0 as a base compiler.
+we use `gcc/8.4.0` as a base compiler.
 In some case the compute nodes dont have a c++ compiler or git.
 in addtion to the compiler, we install git and wget in case they are not installed on the compute node. 
 the base layer is intalled using a login node on eagle, since c++ nor git are available on the compute nodes. 
@@ -16,8 +17,8 @@ the compilers include:
   - intel-oneapi-compilers@2022.1.0
   - llvm@14.0.0
   - cuda
-In addition to all compilers, binutils is intalled to provide the necessary GNU binary tools 
-Pgi is also of interest however it requires a manual download before installing with spack. 
+
+In addition to all compilers, binutils is intalled to provide the necessary GNU binary tools Pgi is also of interest however it requires a manual download before installing with spack. 
 
 3- utilities: this layer contains the necessary utilities such as:
   - bc
@@ -57,7 +58,11 @@ Pgi is also of interest however it requires a manual download before installing 
   - slurm
 
 4- mpi: this layer contains the most common mpi packages
-- mpich, openmpi, intel-mpi, mpt 
+- mpich, 
+- openmpi 
+- intel-mpi 
+- mpt 
+
 each of the mpi packges is installed using a specific compiler (gcc,intel,clang,cuda)
 
 
@@ -104,7 +109,8 @@ it also helps keep track of the installations order.
 The next important thing to modify is the INSTALL_DIR path.
 This should the path where your installation will be located. 
 as an example, for hpcapps members, a good installtion path would be:
-/nopt/nrel/apps/base/${USER}/${TYPE}/{DATE}
+
+`/nopt/nrel/apps/base/${USER}/${TYPE}/{DATE}`
 
 once the two files are modified we can execute the following command to install the packages 
 `./scripts/intall-modules.sh`
