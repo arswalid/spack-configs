@@ -12,15 +12,26 @@ the base layer is intalled using a login node on eagle, since c++ nor git are av
 2- compilers: this layer contains most common compilers.
 all compilers here are installed using the base layer compiler gcc/8.4.0.
 the compilers include:
+  - binutils
   - gcc@12.1.0
   - go@1.17.7
   - intel-oneapi-compilers@2022.1.0
   - llvm@14.0.0
   - cuda
+  - nvhpc@22.7
+  - aocc@3.2.0+license-agreed
 
 In addition to all compilers, binutils is intalled to provide the necessary GNU binary tools Pgi is also of interest however it requires a manual download before installing with spack. 
 
 3- utilities: this layer contains the necessary utilities such as:
+<table border="0">
+ <tr>
+    <td><b style="font-size:30px"></b></td>
+    <td><b style="font-size:30px"></b></td>
+ </tr>
+ <tr>
+    <td>
+  - anaconda3
   - bc
   - bison
   - bzip2
@@ -31,42 +42,57 @@ In addition to all compilers, binutils is intalled to provide the necessary GNU 
   - ffmpeg
   - emacs
   - gdb
-  - gnuplot+wx 
   - gnutls
   - htop
-  - imagemagick 
+  - imagemagick
   - libxml2
   - likwid
   - ninja
   - mercurial
   - makedepend
+    </td>
+    <td>
   - patch
   - pkg-config
-  - python@3.9
-  - python@3.10
-  - rsync
+  - python@3.9.13
+  - python@3.10.6
   - screen
   - stow
   - strace
   - texinfo
-  - texlive 
   - tmux
+  - tar
   - unzip
   - vim
   - zsh
   - ucx
   - slurm
+    </td>
+ </tr>
+</table>
 
 4- mpi: this layer contains the most common mpi packages
 - mpich, 
 - openmpi 
 - intel-mpi 
-- mpt 
 
-each of the mpi packges is installed using a specific compiler (gcc,intel,clang,cuda)
+each of the mpi packges is installed using a specific compiler (gcc,intel)
 
 
-5- software: this layer includes maths libraries and applications
+5- libraries: this include math libraries and I/O libraries 
+  - petsc ^mpi
+  - slepc ^mpi 
+  - adios ^mpi
+  - hypre ^mpi
+  - hdf5 ^mpi  
+  - fftw ^mpi
+  - openblas 
+  - netlib-lapack
+  - netlib-scalapack
+ 
+the mpi used for the packages above are openmpi and intel-mpi.
+
+6- software: this layer includes maths libraries and applications
 
 
 ## python modules 
