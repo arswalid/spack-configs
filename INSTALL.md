@@ -31,42 +31,42 @@ In addition to all compilers, binutils is intalled to provide the necessary GNU 
  </tr>
  <tr>
     <td>
-  - anaconda3
-  - bc
-  - bison
-  - bzip2
-  - cmake
-  - cppcheck
-  - curl
-  - flex@2.6.3
-  - ffmpeg
-  - emacs
-  - gdb
-  - gnutls
-  - htop
-  - imagemagick
-  - libxml2
-  - likwid
-  - ninja
-  - mercurial
-  - makedepend
+- anaconda3
+- bc
+- bison
+- bzip2
+- cmake
+- cppcheck
+- curl
+- flex@2.6.3
+- ffmpeg
+- emacs
+- gdb
+- gnutls
+- htop
+- imagemagick
+- libxml2
+- likwid
+- ninja
+- mercurial
+- makedepend
     </td>
     <td>
-  - patch
-  - pkg-config
-  - python@3.9.13
-  - python@3.10.6
-  - screen
-  - stow
-  - strace
-  - texinfo
-  - tmux
-  - tar
-  - unzip
-  - vim
-  - zsh
-  - ucx
-  - slurm
+- patch
+- pkg-config
+- python@3.9.13
+- python@3.10.6
+- screen
+- stow
+- strace
+- texinfo
+- tmux
+- tar
+- unzip
+- vim
+- zsh
+- ucx
+- slurm
     </td>
  </tr>
 </table>
