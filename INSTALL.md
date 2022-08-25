@@ -88,28 +88,14 @@ In order to install mpi4py using pip, mpi needs to be loaded.
 
 
 
-## install software:
+# install software:
+
+## General information
 
 For a list of packages available in spack see the following website:
 https://spack.readthedocs.io/en/latest/package_list.html#package-list
 
 
-There are num of important files that needs to be updated.  
-
-First spack.yaml which is located in `spack-config/configs/eagle/software`
-This file will contain the list of applications to be installed. 
-you can always specify the compiler of choice by using `%{compiler-name}%{compiler-version}`
-and also specify the mpi of choice by using `^{mpi-name}@{mpi-version}`
-as an example, if we wanted to install petsc using openmpi/4.1.1 and gcc/12.1.0, spack.yaml will look ike this 
-
-```
-spack:
-  specs:
-  - petsc ^openmpi@4.1.1 %gcc@12.1.0  
-  view: false
-```
-
-spack will automatically reuse any previously installed package from the previous layers.
 
 It is important to know the variants of each spack package.
 We can see variants of package by using `spack info <package>`.
@@ -176,6 +162,45 @@ Link Dependencies:
 Run Dependencies:
     None
 ```
+
+`spack info` first defines the package and displays allow available versions and the preferred for installation.
+You can specify a specific version to install by using `netcdf-c@<version>`
+The variants are then displayed showing the ones used by default (with [on]) and the ones that can be used but are not set by default ([off]).
+In this example `netcdf-c` is using mpi and pic by default.
+In order to use any other variant we need to add `+<variant>`, i.e. `netcdf-c +dap+fsync...`
+If we want to remove a default variant we need to add `~<variant>`, i.e. `netcdf-c ~mpi~pic` 
+
+## Files to modify
+
+There are num of important files that needs to be updated.  
+
+### Software to install: `spack.yaml`
+
+First spack.yaml which is located in `spack-config/configs/eagle/software`
+This file will contain the list of applications to be installed. 
+you can always specify the compiler of choice by using `%{compiler-name}%{compiler-version}`
+and also specify the mpi of choice by using `^{mpi-name}@{mpi-version}`
+as an example, if we wanted to install petsc using openmpi/4.1.1 and gcc/12.1.0, spack.yaml will look ike this 
+
+```yaml
+spack:
+  specs:
+  - petsc@4.7.4 +mpi~pic ^openmpi@4.1.1 %gcc@12.1.0  
+  view: false
+```
+
+spack will automatically reuse any previously installed package from the previous layers.
+
+
+
+### Compilers location: `compilers.yaml`
+
+The compilers are defined in `compilers.yaml` which is located in `configs/eagle/software/`.
+This file contains the path to all c, c++ and fortran compilers already installed.
+when specifiying the compiler used for the installation of a package, we need to make sure it is already defined in `spack.yaml`.
+
+
+### Installation to script: `install-modules.sh` 
 
 next we need to modify the file install-modules.sh which is located in spack-config/script/.
 first thing to modify is the DATE. 
