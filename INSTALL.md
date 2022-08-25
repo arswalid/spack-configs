@@ -76,6 +76,10 @@ for each one, pip will be used to install modules such as numpy scipy jupyter pa
 Once the python module is loaded 
 `module load python/{version}`
 
+we need to install pip for that loaded version of python using 
+
+`python -m ensurepip --default-pip`
+
 we can use the following command to install the python modules
 
 `python -m pip install --upgrade pip setuptools wheel numpy scipy matplotlib jupyter pandas`
@@ -85,9 +89,14 @@ In order to install mpi4py using pip, mpi needs to be loaded.
 
 
 ## install software:
+
+For a list of packages available in spack see the following website:
+https://spack.readthedocs.io/en/latest/package_list.html#package-list
+
+
 There are num of important files that needs to be updated.  
 
-First spack.yaml which is located in spack-config/configs/eagle/software
+First spack.yaml which is located in `spack-config/configs/eagle/software`
 This file will contain the list of applications to be installed. 
 you can always specify the compiler of choice by using `%{compiler-name}%{compiler-version}`
 and also specify the mpi of choice by using `^{mpi-name}@{mpi-version}`
@@ -101,6 +110,72 @@ spack:
 ```
 
 spack will automatically reuse any previously installed package from the previous layers.
+
+It is important to know the variants of each spack package.
+We can see variants of package by using `spack info <package>`.
+an example of this command with netcdf-c is demonstrated below.
+
+
+```bash
+AutotoolsPackage:   netcdf-c
+
+Description:
+    NetCDF (network Common Data Form) is a set of software libraries and
+    machine-independent data formats that support the creation, access, and
+    sharing of array-oriented scientific data. This is the C distribution.
+
+Homepage: https://www.unidata.ucar.edu/software/netcdf
+
+Preferred version:  
+    4.8.1      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.8.1.tar.gz
+
+Safe versions:  
+    main       [git] https://github.com/Unidata/netcdf-c.git on branch main
+    4.8.1      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.8.1.tar.gz
+    4.8.0      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.8.0.tar.gz
+    4.7.4      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.7.4.tar.gz
+    4.7.3      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.7.3.tar.gz
+    4.7.2      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.7.2.tar.gz
+    4.7.1      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.7.1.tar.gz
+    4.7.0      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.7.0.tar.gz
+    4.6.3      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.6.3.tar.gz
+    4.6.2      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.6.2.tar.gz
+    4.6.1      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.6.1.tar.gz
+    4.6.0      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.6.0.tar.gz
+    4.5.0      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.5.0.tar.gz
+    4.4.1.1    https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.4.1.1.tar.gz
+    4.4.1      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.4.1.tar.gz
+    4.4.0      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.4.0.tar.gz
+    4.3.3.1    https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.3.3.1.tar.gz
+    4.3.3      https://github.com/Unidata/netcdf-c/archive/refs/tags/v4.3.3.tar.gz
+
+Deprecated versions:  
+    None
+
+Variants:
+    Name [Default]           When    Allowed values    Description
+    =====================    ====    ==============    =====================================
+
+    dap [off]                --      on, off           Enable DAP support
+    fsync [off]              --      on, off           Enable fsync support
+    hdf4 [off]               --      on, off           Enable HDF4 support
+    jna [off]                --      on, off           Enable JNA support
+    mpi [on]                 --      on, off           Enable parallel I/O for netcdf-4
+    parallel-netcdf [off]    --      on, off           Enable parallel I/O for classic files
+    pic [on]                 --      on, off           Produce position-independent code
+                                                       (for shared libs)
+    shared [on]              --      on, off           Enable shared library
+
+Build Dependencies:
+    autoconf  curl       hdf   libtool  mpi              zlib
+    automake  gnuconfig  hdf5  m4       parallel-netcdf
+
+Link Dependencies:
+    curl  hdf  hdf5  mpi  parallel-netcdf  zlib
+
+Run Dependencies:
+    None
+```
 
 next we need to modify the file install-modules.sh which is located in spack-config/script/.
 first thing to modify is the DATE. 
