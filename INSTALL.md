@@ -250,3 +250,40 @@ this will:
 - create module files for all packages 
 - set permissions 
 
+### Installation of custom packages 
+
+Our definition of custom packages means any package or application not available in the package list on spack documentation [website](https://spack.readthedocs.io/en/latest/package_list.html#package-list) or any package that we want to install using a tar ball. 
+Thh first step is to create a folder that will contain all custom recipes and point spack to it.
+As an example the folder will be created under `$SPACK_ROOT/custom`.
+the folder `custom` should contain 
+
+1- packages
+
+This contains subfolders with the name of any custom package we want to install.
+Each subfolder contains a python file `package.py` which is the spack recipe used for the installation. 
+
+2- repo.yaml
+
+This yaml file is used by spack to recognize other spack recipes location.
+The yaml file looks like this 
+
+```yaml
+repo:
+  namespace: custom
+```  
+
+The custom folder should like this 
+
+```bash 
+custom 
+  repo.yaml
+  packages 
+    package_name_1
+      package.py
+    package_name_2
+    package_name_3
+    ...
+```
+
+`spack repo add `
+
