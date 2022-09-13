@@ -1,5 +1,5 @@
-This file describes the procedure to intall a software/application using spack through this repo.
-This repo uses levels in spack to separate each type of application.
+This file describes the procedure to intall a software/application using Spack through this repo.
+This repo uses levels in Spack to separate each type of application.
 
 the levels are:
 
@@ -21,7 +21,7 @@ the compilers include:
   - nvhpc@22.7
   - aocc@3.2.0+license-agreed
 
-In addition to all compilers, binutils is intalled to provide the necessary GNU binary tools Pgi is also of interest however it requires a manual download before installing with spack. 
+In addition to all compilers, binutils is intalled to provide the necessary GNU binary tools Pgi is also of interest however it requires a manual download before installing with Spack. 
 
 3- utilities: this layer contains the necessary utilities such as:
 <table border="0">
@@ -118,12 +118,12 @@ In order to install mpi4py using pip, mpi needs to be loaded.
 
 ## General information
 
-For a list of packages available in spack see the following website:
+For a list of packages available in Spack see the following website:
 https://spack.readthedocs.io/en/latest/package_list.html#package-list
 
 
 
-It is important to know the variants of each spack package.
+It is important to know the variants of each Spack package.
 We can see variants of package by using `spack info <package>`.
 an example of this command with netcdf-c is demonstrated below.
 
@@ -202,7 +202,7 @@ There are num of important files that needs to be updated.
 
 ### Software to install: `spack.yaml`
 
-First spack.yaml which is located in `spack-config/configs/eagle/software`
+First `spack.yaml` which is located in `spack-config/configs/eagle/software`
 This file will contain the list of applications to be installed. 
 you can always specify the compiler of choice by using `%{compiler-name}%{compiler-version}`
 and also specify the mpi of choice by using `^{mpi-name}@{mpi-version}`
@@ -243,28 +243,28 @@ once the two files are modified we can execute the following command to install 
 
 this will: 
 - create the installation directory
-- clone spack
+- clone Spack
 - copy all necessary files 
 - load necessary modules 
 - install packages 
 - create module files for all packages 
 - set permissions 
 
-### Installation of custom packages 
+### Creation of custom packages 
 
-Our definition of custom packages means any package or application not available in the package list on spack documentation [website](https://spack.readthedocs.io/en/latest/package_list.html#package-list) or any package that we want to install using a tar ball. 
-Thh first step is to create a folder that will contain all custom recipes and point spack to it.
+Our definition of custom packages means any package or application not available in the package list on Spack documentation [website](https://spack.readthedocs.io/en/latest/package_list.html#package-list) or any package that we want to install using a tar ball. 
+Thh first step is to create a folder that will contain all custom recipes and point Spack to it.
 As an example the folder will be created under `$SPACK_ROOT/custom`.
 the folder `custom` should contain 
 
 1- packages
 
 This contains subfolders with the name of any custom package we want to install.
-Each subfolder contains a python file `package.py` which is the spack recipe used for the installation. 
+Each subfolder contains a python file `package.py` which is the Spack recipe used for the installation. 
 
 2- repo.yaml
 
-This yaml file is used by spack to recognize other spack recipes location.
+This yaml file is used by Spack to recognize other Spack recipes location.
 The yaml file looks like this 
 
 ```yaml
@@ -285,5 +285,19 @@ custom
     ...
 ```
 
-`spack repo add `
+In order to point Spack to the custom folder we use
+
+`spack repo add $SPACK_ROOT/custom`
+
+This adds the folder `custom` as another package repositery. 
+The next step is to create the packge file. 
+THis is done with the command 
+
+`spack create <url>`
+
+`<url>` is the link that contains the software repository.
+The spack create command builds a new package from a template by taking the location of the package source code and using it to:
+- Fetch the code.
+- Create a package skeleton.
+- Open the file up in your editor of choice
 
