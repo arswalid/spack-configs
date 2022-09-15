@@ -1,42 +1,46 @@
 spack:
   specs:
-  - anaconda3
-  - bc
-  - bison
-  - bzip2
-  - cmake
-  - cppcheck
-  - curl
-  - flex@2.6.3
-  - ffmpeg
-  - emacs
-  - gdb
-  - gnutls
-  - htop
-  - imagemagick
-  - libxml2
-  - likwid
-  - ninja
-  - mercurial
-  - makedepend
-  - patch
-  - pkg-config
-  - python@3.9.13
-  - python@3.10.6
-  - screen
-  - stow
-  - strace
-  - texinfo
-  - tmux
-  - tar
-  - unzip
-  - vim
-  - zsh
-  - ucx
-  - slurm
-  #- gnuplot+qt (error due to libtiff missing)
-  #- apptainer (problem with libseccomp may not be needed)
-  #- texlive (takes forever better use installation from source)
-  #- global
-  #- xterm
+    - anaconda3
+    - bc
+    - bison
+    - bzip2
+    - cmake
+    - cppcheck
+    - curl
+    - flex@2.6.3
+    - ffmpeg
+    - emacs
+    - gdb
+    - gnutls
+    - htop
+    - imagemagick
+    - libxml2
+    - likwid
+    - julia
+    - ninja
+    - mercurial
+    - makedepend
+    - patch
+    - pkg-config
+    - python@3.9.13
+    - python@3.10.6
+    - screen
+    - stow
+    - strace
+    - texinfo
+    - tmux
+    - tar
+    - unzip
+    - vim
+    - zsh
+    - ucx
+    - slurm
+    - autoconf
+    - julia@1.8.1
+    - julia@1.7.2
+    #- gnuplot+qt (error due to libtiff missing)
+    #- apptainer (problem with libseccomp may not be needed)
+    #- texlive (takes forever better use installation from source)
+    #- global
+    #- xterm
   view: false

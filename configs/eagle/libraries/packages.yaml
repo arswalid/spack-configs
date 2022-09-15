@@ -15,12 +15,18 @@ packages:
     variants: ~superlu-dist
   cuda:
     externals:
-    - spec: cuda@10.2.89
-      prefix: /nopt/nrel/ecom/hpacf/compilers/2020-07/spack/opt/spack/linux-centos7-skylake_avx512/gcc-8.4.0/cuda-10.2.89-rmccd4tpc5gxbbrjeeohphuuujb4cz2o
+    - spec: cuda@11.7.0
+      prefix: /nopt/nrel/apps/base/warsalan/csso_08_22/mpi/08-22/spack/opt/spack/linux-centos7-skylake_avx512/gcc-10.1.0/openmpi-4.1.4-wy377nzxl7jr2eroiq5mn5db7lpmlcfq
+    buildable: false
   cudnn:
     version: [7.6.5.32-10.1-linux-x64]
   openmpi:
-    variants: +pmi +cuda fabrics=ucx schedulers=slurm legacylaunchers=true ~vt
+    buildable: false
+    externals:
+    - spec: openmpi@4.1.4%gcc@10.1.0 
+      prefix: /nopt/nrel/apps/base/warsalan/csso_08_22/mpi/08-22/spack/opt/spack/linux-centos7-skylake_avx512/gcc-10.1.0/openmpi-4.1.4-wy377nzxl7jr2eroiq5mn5db7lpmlcfq
+    - spec: openmpi@4.1.4%intel@2021.6.0 
+      prefix: /nopt/nrel/apps/base/warsalan/csso_08_22/mpi/08-22/spack/opt/spack/linux-centos7-skylake_avx512/intel-2021.6.0/openmpi-4.1.4-qejlxesh6vldlkculopkwh6ym2ramj66
   mpich:
     variants: netmod=ucx device=ch4 +slurm +hydra
   py-horovod:
@@ -45,10 +51,10 @@ packages:
     - spec: mpt@2.22
       prefix: /opt/hpe/hpc/mpt/mpt-2.22
   all:
-    compiler: [gcc, oneapi, clang]
+    compiler: [gcc%10.1.0, intel, clang]
     variants: build_type=Release +mpi
     providers:
-      mpi: [mpt]
+      mpi: [openmpi]
       blas: [netlib-lapack]
       lapack: [netlib-lapack]
       gl: [osmesa+opengl]

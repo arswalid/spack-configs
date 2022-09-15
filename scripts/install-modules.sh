@@ -13,8 +13,9 @@
 
 #TYPE=base
 #TYPE=utilities
-TYPE=compilers
+#TYPE=compilers
 #TYPE=mpi
+TYPE=libraries
 #TYPE=software
 
 DATE=08-22
@@ -92,20 +93,20 @@ elif [[ "${TYPE}" == 'utilities' || "${TYPE}" == 'compilers' ]]; then
   elif [ "${MACHINE}" == 'rhodes' ]; then
     CPU_OPT=broadwell
   fi
-elif [ "${TYPE}" == 'mpi' || "${TYPE}" == 'software' ]; then
+elif [[ "${TYPE}" == 'mpi' || "${TYPE}" == 'software' || "${TYPE}" == 'libraries' ]]; then
   if [ "${MACHINE}" == 'eagle' ]; then
-  GCC_COMPILER_VERSION=12.1.0
+  GCC_COMPILER_VERSION=10.1.0
     CPU_OPT=linux-centos7-skylake_avx512
   elif [ "${MACHINE}" == 'vermilion' ]; then
-  GCC_COMPILER_VERSION=12.1.0
+  GCC_COMPILER_VERSION=10.1.0
     CPU_OPT=linux-rocky8-zen2
   elif [ "${MACHINE}" == 'rhodes' ]; then
     CPU_OPT=broadwell
   fi
 fi
 GCC_COMPILER_MODULE=gcc/${GCC_COMPILER_VERSION}
-INTEL_COMPILER_VERSION=2022.1.0
-INTEL_COMPILER_MODULE=intel-oneapi-compilers/${INTEL_COMPILER_VERSION}
+INTEL_COMPILER_VERSION=2021.6.0
+INTEL_COMPILER_MODULE=intel/${INTEL_COMPILER_VERSION}
 CLANG_COMPILER_VERSION=14.0.6
 CLANG_COMPILER_MODULE=llvm/${CLANG_COMPILER_VERSION}
 
@@ -114,22 +115,22 @@ printf "\nLoading modules...\n"
 cmd "module purge"
 cmd "module unuse ${MODULEPATH}"
 if [ "${TYPE}" == 'utilities' ]; then
-  cmd "module use ${BASE_DIR}/base/modules-${DATE}"
+  cmd "module use ${BASE_DIR}/base/modules"
   cmd "module load gcc git python"
 elif [ "${TYPE}" == 'compilers' ]; then
-  cmd "module use ${BASE_DIR}/base/modules-${DATE}"
-  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
+  cmd "module use ${BASE_DIR}/base/modules"
+  cmd "module use ${BASE_DIR}/utilities/modules-08-22"
   cmd "module load gcc git python"
-elif ["${TYPE}" == 'mpi' ]; then
-  cmd "module use ${BASE_DIR}/base/modules-${DATE}"
-  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
-  cmd "module load gcc oneapi cuda nvhpc git python "
-elif [ "${TYPE}" == 'software' ]; then
-  cmd "module use ${BASE_DIR}/compilers/modules-${DATE}"
-  cmd "module use ${BASE_DIR}/utilities/modules-${DATE}"
-  cmd "module use ${BASE_DIR}/mpi/modules-${DATE}"
-  cmd "module load gcc    git    python oneapi"
-  cmd "module load openmpi mpich mpt"
+elif [ "${TYPE}" == 'mpi' ]; then
+  cmd "module use ${BASE_DIR}/base/modules"
+  cmd "module use ${BASE_DIR}/utilities/modules-08-22"
+  cmd "module use ${BASE_DIR}/compilers/modules"
+  cmd "module load gcc:10.1.0 intel-oneapi-compilers:2022.1.0  nvhpc:22.7 git python "
+elif [[ "${TYPE}" == 'software' || "${TYPE}" == 'libraries' ]]; then
+  cmd "module use ${BASE_DIR}/base/modules"
+  cmd "module use ${BASE_DIR}/utilities/modules-08-22"
+  cmd "module use ${BASE_DIR}/compilers/modules"
+  cmd "module load gcc:10.1.0 git python intel-oneapi-compilers:2022.1.0"
 fi
 
 # Clone and setup spack
@@ -141,9 +142,6 @@ if [ ! -d "${INSTALL_DIR}" ]; then
 
   printf "Creating top level install directory...\n"
   cmd "mkdir -p ${INSTALL_DIR}"
-  #cmd "module purge"
-  #cmd "module use /nopt/nrel/apps/base/warsalan/Tim_scripts/tools/boot/modules/lmod/linux-centos7-x86_64/Core"
-  #cmd "ml git"
   printf "\nCloning Spack repo...\n"
   cmd "git clone -c feature.manyFiles=true https://github.com/spack/spack.git  ${SPACK_ROOT}"
 
@@ -165,11 +163,17 @@ if [ ! -d "${INSTALL_DIR}" ]; then
   if [ -d "${License_PATH}" ]; then
     cmd "cp ${Licence_PATH} ${SPACK_ROOT}/etc/spack/licenses/intel/"
   fi
+  if [[ "${TYPE}" != 'base' && "${TYPE}" != 'utilities' ]]; then
+    cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/packages.yaml ${SPACK_ROOT}/etc/spack/"
+    cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/packages.yaml ${SPACK_ROOT}/etc/spack/linux/"
+  fi
+  cmd "cp -r ${THIS_REPO_DIR}/repos ${SPACK_ROOT}/"
   cmd "export SPACK_DISABLE_LOCAL_CONFIG=true"
   cmd "export SPACK_USER_CACHE_PATH=${SPACK_ROOT}/.cache"
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
   cmd "spack env create ${TYPE}"
   cmd "cp ${THIS_REPO_DIR}/configs/${MACHINE}/${TYPE}/spack.yaml ${SPACK_ROOT}/var/spack/environments/${TYPE}/spack.yaml"
+  cmd "spack repo add ${SPACK_ROOT}/repos/external"
 
   printf "============================================================\n"
   printf "Done setting up install directory.\n"
@@ -180,7 +184,6 @@ else
   cmd "export SPACK_USER_CACHE_PATH=${SPACK_ROOT}/.cache"
   cmd "source ${SPACK_ROOT}/share/spack/setup-env.sh"
 fi
-
 
 
 cmd "spack compiler find"
@@ -198,37 +201,43 @@ printf "\nInstalling ${TYPE}...\n"
 cmd "spack bootstrap root /scratch/${USER}/.spack"
 cmd "spack env activate ${TYPE}"
 cmd "spack concretize --fresh --force"
-printf "\nrunning spack install\n"
 cmd "spack  install "
 wait
-cmd "spack module tcl refresh --delete-tree -y"
 
-#cmd "spack module tcl refresh --delete-tree -y"
+cmd "spack module tcl refresh --delete-tree -y"
 printf "\nDone installing ${TYPE} at $(date).\n"
 
 printf "\nCreating dated modules symlink...\n"
 
-if [ "${TYPE}" != 'software' ]; then
-  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules  && cd -"
-elif [ "${TYPE}" == 'software' ]; then
-  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE}/gcc-${GCC_COMPILER_VERSION} && cd -"
-  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} modules-${DATE}/intel-${GCC_COMPILER_VERSION} && cd -"
-  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/clang-${CLANG_COMPILER_VERSION} modules-${DATE}/clang-${GCC_COMPILER_VERSION} && cd -"
+if [[ "${TYPE}" != 'software' && "${TYPE}" != 'mpi' && "${TYPE}" != 'libraries' ]]; then
+  cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE}  && cd -"
+elif [[ "${TYPE}" == 'software' || "${TYPE}" == 'mpi' || "${TYPE}" == 'libraries' ]]; then
+  #cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} modules-${DATE}-gcc-${GCC_COMPILER_VERSION} && cd -"
+  #cmd "cd ${INSTALL_DIR}/.. && ln -sf ${DATE}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} modules-${DATE}-intel-${INTEL_COMPILER_VERSION} && cd -"
+  if [  -d "${BASE_DIR}/${TYPE}/modules-${DATE}" ]; then
+    cmd "rm -rf ${BASE_DIR}/${TYPE}/modules-${DATE}"
+  fi
+  if [ ! -d "${BASE_DIR}/${TYPE}/modules-${DATE}" ]; then
+    cmd "mkdir ${BASE_DIR}/${TYPE}/modules-${DATE}"
+  fi
+  for i in ${BASE_DIR}/${TYPE}/${DATE}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION}/*  ${BASE_DIR}/${TYPE}/${DATE}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION}/* 
+  do 
+      cd ${BASE_DIR}/${TYPE}/modules-${DATE} &&  ln -sf $i $(basename $i)  
+  done
 fi
 
 printf "\nSetting permissions...\n"
 
 if [[ "${MACHINE}" == 'eagle' ||  "${MACHINE}" == 'vermilion' ]]; then
-  if [ "${TYPE}" != 'software' ]; then
+  if [[ "${TYPE}" != 'software' && "${TYPE}" != 'mpi' && "${TYPE}" != 'libraries' ]]; then
   # Need to create a blank .version for name/version splitting for lmod
-  cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
-  elif [ "${TYPE}" == 'software' ]; then
+    cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
+  elif [[ "${TYPE}" == 'software' || "${TYPE}" == 'mpi' || "${TYPE}" == 'libraries' ]]; then
     cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/gcc-${GCC_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
     cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/intel-${INTEL_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
-    cd ${INSTALL_DIR}/spack/share/spack/modules/${CPU_OPT}/clang-${CLANG_COMPILER_VERSION} && find . -mindepth 1 -maxdepth 1 -type d -print0 | xargs -0 -I % touch %/.version
   fi
-  cmd "nice -n 19 ionice -c 3 chmod -R a+rX,go-w ${INSTALL_DIR}"
-  cmd "nice -n 19 ionice -c 3 chgrp -R n-apps ${INSTALL_DIR}"
+#  cmd "nice -n 19 ionice -c 3 chmod -R a+rX,go-w ${INSTALL_DIR}"
+#  cmd "nice -n 19 ionice -c 3 chgrp -R n-apps ${INSTALL_DIR}"
 elif [ "${MACHINE}" == 'rhodes' ]; then
   cmd "nice -n 19 ionice -c 3 chgrp windsim /opt"
   cmd "nice -n 19 ionice -c 3 chgrp windsim /opt/${TYPE}"

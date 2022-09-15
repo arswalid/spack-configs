@@ -2,12 +2,13 @@ spack:
   specs:
   - binutils
   - gcc@12.1.0
+  - gcc@10.1.0
   - go@1.17.7
   - intel-oneapi-compilers@2022.1.0
-  - llvm@14.0.0
-  - cuda
+  - cuda@11.7.0+allow-unsupported-compilers
   - nvhpc@22.7
   - arm-forge@22.0.4
   - aocc@3.2.0+license-agreed
+  #- llvm@14.0.0+omp_as_runtime (needs libelf)
   #- pgi (needs manual download moved to nvhpc)   
-  view: False
+  view: false

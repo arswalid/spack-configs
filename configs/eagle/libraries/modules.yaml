@@ -20,5 +20,5 @@ modules:
             'UCX_NET_DEVICES': 'mlx5_0:1'
       #^python:
       #  autoload: 'direct'
-      include: ['fenics'] 
+      include: ['intel-oneapi-mkl','boost','hypre','superlu-dist','petsc', 'slepc', 'adios', 'hypre','hdf5','fftw','openblas','netlib-lapack','netlib-scalapack'] 
       exclude: ['%intel', '%gcc']

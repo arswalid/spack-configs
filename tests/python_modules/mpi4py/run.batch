@@ -1,0 +1,21 @@
+#!/bin/bash -l
+#SBATCH --account=hpcapps
+#SBATCH --mail-user=walid.arsalane@nrel.gov
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --time=01:00:00
+#SBATCH --nodes=1  
+#SBATCH --partition=debug
+
+
+set -e
+
+cmd() {
+  echo "+ $@"
+  eval "$@"
+}
+
+
+source /nopt/nrel/apps/base/warsalan/csso_08_22/env.sh
+cmd "ml python:3.9.13"
+
+srun -n 4 python /nopt/nrel/apps/base/warsalan/csso_08_22/spack-configs/tests/python_modules/mpi4py/py_objects.py

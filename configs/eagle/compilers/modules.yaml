@@ -4,7 +4,7 @@ modules:
       - tcl
     tcl:
       projections:
-        all: '{compiler.name}-{compiler.version}/{name}/{version}'
+        all: '{compiler.name}-{compiler.version}/{name}:{version}'
       hash_length: 0
       all:
         conflict:
@@ -20,5 +20,5 @@ modules:
         environment:
           set:
             PGROUPD_LICENSE_FILE: '27001@license-1.hpc.nrel.gov'
-      include: ['aocc','arm-forge','nvhpc','cuda', 'gcc', 'go', 'llvm', 'binutils', 'intel-oneapi-compilers', 'pgi']
+      include: ['aocc','arm-forge','nvhpc','cuda', 'gcc', 'go', 'llvm', 'intel-oneapi-compilers', 'pgi']
       exclude: ['%gcc']

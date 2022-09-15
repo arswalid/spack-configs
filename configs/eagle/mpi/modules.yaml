@@ -1,14 +1,17 @@
 modules:
-  enable:
-    - tcl
-  tcl:
-    projections:
-      all: '{compiler.name}-{compiler.version}/{name}/{version}/{hash:4}'
-    hash_length: 0
-    all:
-      conflict:
-        - '{name}'
-      environment:
-        set:
-          '{name}_ROOT_DIR': '{prefix}'
-    exclude: ['cuda', 'gcc', 'go', 'llvm', 'intel-parallel-studio', 'binutils', 'pgi', '%gcc', '%oneapi']
+  default:
+    enable:
+      - tcl
+    tcl:
+      projections:
+        all: '{compiler.name}-{compiler.version}/{name}:{version}-{compiler.name}'
+        +mpi: '{compiler.name}-{compiler.version}/{name}/{version}/{^mpi.name}/{compiler.name}'
+      hash_length: 0
+      all:
+        conflict:
+          - '{name}'
+        environment:
+          set:
+            '{name}_ROOT_DIR': '{prefix}'
+      include: ['intel-oneapi-mpi','openmpi','mpich']
+      exclude: ['%intel', '%gcc']

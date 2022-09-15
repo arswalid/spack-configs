@@ -1,11 +1,8 @@
 spack:
   specs:
-  - openmpi%gcc  
-  - openmpi%oneapi
-  - mpich%gcc
-  - mpich%oneapi
-  - intel-oneapi-mpi%gcc
-  - intel-oneapi-mpi%oneapi
-  - mpt%gcc
-  - mpt%oneapi
+  - openmpi +pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true  %gcc@10.1.0
+  - openmpi +pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true  %intel
+  - mpich netmod=ucx device=ch4 +slurm +hydra  %gcc@10.1.0
+  - mpich netmod=ucx device=ch4 +slurm +hydra  %intel
+  - intel-oneapi-mpi%intel
   view: false

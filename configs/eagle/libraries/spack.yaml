@@ -1,0 +1,28 @@
+spack:
+  specs:
+    - petsc ^openmpi+pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true
+      %gcc@10.1.0
+    - slepc ^openmpi+pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true
+      %gcc@10.1.0
+    - adios ^openmpi+pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true
+      %gcc@10.1.0
+    - hdf5 ^openmpi +pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true
+      %gcc@10.1.0
+    - fftw ^openmpi +pmi +cuda~vt fabrics=ucx schedulers=slurm legacylaunchers=true
+      %gcc@10.1.0
+    - petsc ^intel-oneapi-mpi %intel
+    - slepc ^intel-oneapi-mpi %intel
+    - adios ^intel-oneapi-mpi %intel
+    - hdf5 ^intel-oneapi-mpi %intel
+    - fftw ^intel-oneapi-mpi %intel
+    - openblas       %gcc@10.1.0
+    - netlib-lapack  %gcc@10.1.0
+    - netlib-scalapack %gcc@10.1.0
+    - parmetis %gcc@10.1.0
+    - boost +mpi+atomic+container+context+contract+coroutine+date_time+fiber+filesystem+graph_parallel+iostreams+json+locale+log+math+multithreaded+nowide+numpy+program_options+python+random+regex+serialization+signals+stacktrace+timer+type_erasure+wave
+      cxxstd=17  %gcc@10.1.0 ^openmpi
+    - boost +mpi+atomic+container+context+contract+coroutine+date_time+fiber+filesystem+graph_parallel+iostreams+json+locale+log+math+multithreaded+nowide+numpy+program_options+python+random+regex+serialization+signals+stacktrace+timer+type_erasure+wave
+      cxxstd=17  %intel ^intel-oneapi-mpi
+    - hypre@2.25.0%gcc@10.1.0 ~cuda+gptune+openmp~rocm~superlu-dist  ^openmpi%gcc@10.1.0
+    - intel-oneapi-mkl%intel
+  view: false

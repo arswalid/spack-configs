@@ -4,7 +4,7 @@ modules:
       - tcl
     tcl:
       projections:
-        all: '{compiler.name}-{compiler.version}/{name}:{version}'
+        all: '{compiler.name}-{compiler.version}/{name}/{version}'
       hash_length: 0
       all:
         conflict:
