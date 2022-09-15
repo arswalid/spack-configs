@@ -112,6 +112,11 @@ we can use the following command to install the python modules
 
 In order to install mpi4py using pip, mpi needs to be loaded. 
 
+other installed packages:
+- tensorflow 
+- torch
+
+
 
 
 # install software:
@@ -226,7 +231,7 @@ This file contains the path to all c, c++ and fortran compilers already installe
 when specifiying the compiler used for the installation of a package, we need to make sure it is already defined in `spack.yaml`.
 
 
-### Installation to script: `install-modules.sh` 
+### Installation script: `install-modules.sh` 
 
 next we need to modify the file install-modules.sh which is located in spack-config/script/.
 first thing to modify is the DATE. 
